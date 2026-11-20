@@ -1,0 +1,11 @@
+{$N8N_HOST} {
+    handle /videos/* {
+        reverse_proxy motion-renderer:8000
+    }
+
+    handle {
+        reverse_proxy n8n:5678 {
+            flush_interval -1
+        }
+    }
+}

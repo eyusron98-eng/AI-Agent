@@ -1,11 +1,11 @@
 {
-  "name": "Tim Konten Kreator AI (Fonnte Skema A + Gemini + Sheets + Video Motion)",
+  "name": "Tim Konten Kreator AI (100% Gratis di VPS: Fonnte Skema A + Gemini + Sheets + Local Video Motion)",
   "nodes": [
     {
       "parameters": {
-        "content": "## Panduan Setup Cepat (n8n Cloud + Google Gemini + Fonnte Skema A)\n1. **Google Gemini API:** Buka node *Google Gemini (Manajer)* dan *Google Gemini (Motion)* -> Create New Credential -> tempel API Key dari **Google AI Studio (aistudio.google.com)**.\n2. **Google Sheets:** Buka salah satu node Google Sheets -> hubungkan akun Google-mu (OAuth2). ID Spreadsheet `1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4` sudah terisi otomatis.\n3. **Filter Nomor Pemilik (Skema A - 2 Nomor):** Buka node *Filter Nomor Pemilik (Skema A)* -> ganti `6281234567890` dengan nomor WA pribadimu (yang dipakai untuk mengirim perintah ke nomor bot).\n4. **Token Fonnte:** Buka node *Kirim Balasan Teks via Fonnte* dan *Kirim Video via Fonnte* -> ganti `ISI_TOKEN_FONNTE_ANDA` dengan Device Token nomor bot dari dashboard Fonnte.\n5. **JSON2Video:** Buka node *Render Video Motion* dan *Ambil URL Video MP4* -> ganti `ISI_API_KEY_JSON2VIDEO_ANDA` dengan API Key dari json2video.com.\n6. **Aktifkan Workflow:** Klik toggle **Active** di kanan atas n8n Cloud, salin **Production URL** dari node *Webhook Fonnte Masuk*, lalu tempel ke **Dashboard Fonnte -> Device -> Webhook URL**.",
-        "height": 380,
-        "width": 620
+        "content": "## Panduan Setup Cepat (100% GRATIS di VPS Biznet + Google Gemini + Fonnte Skema A)\n1. **Google Gemini API (Gratis):** Buka node *Google Gemini (Manajer)* dan *Google Gemini (Motion)* -> Create New Credential -> tempel API Key dari **Google AI Studio (aistudio.google.com/app/apikey)**.\n2. **Google Sheets:** Buka salah satu node Google Sheets -> hubungkan akun Google-mu (OAuth2 / Service Account). ID Spreadsheet `1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4` sudah terisi otomatis.\n3. **Filter Nomor Pemilik (Skema A - 2 Nomor):** Buka node *Filter Nomor Pemilik (Skema A)* -> ganti `6281234567890` dengan nomor WA pribadimu (yang dipakai untuk mengirim perintah ke nomor bot).\n4. **Token Fonnte:** Buka node *Kirim Balasan Teks via Fonnte* dan *Kirim Video via Fonnte* -> ganti `ISI_TOKEN_FONNTE_ANDA` dengan Device Token nomor bot dari dashboard Fonnte.\n5. **Mesin Video Motion Gratis:** Node *Render Video Motion Gratis di VPS* sudah otomatis terhubung ke `http://motion-renderer:8000/render` di VPS kamu (TANPA perlu API key berbayar!).\n6. **Aktifkan Workflow:** Klik toggle **Active** di kanan atas n8n, salin **Production URL** dari node *Webhook Fonnte Masuk*, lalu tempel ke **Dashboard Fonnte -> Device -> Webhook URL**.",
+        "height": 390,
+        "width": 650
       },
       "id": "sticky-panduan",
       "name": "Panduan Setup",
@@ -624,7 +624,7 @@
         "promptType": "define",
         "text": "=Buatkan JSON 5 scene video motion 9:16 untuk konten berikut:\nID_Konten: {{ $json.ID_Konten }}\nPilar: {{ $json.Pilar }}\nTopik: {{ $json.Topik }}\nHook: {{ $json.Hook_3_Detik }}\nNaskah: {{ $json.Naskah_Lengkap }}\nPrompt Visual Dasar: {{ $json.Prompt_Visual }}",
         "options": {
-          "systemMessage": "Kamu adalah Sutradara Video Motion 9:16 (1080x1920, durasi ~23 detik). Kembalikan HANYA JSON valid tanpa markdown ```json:\n{\n  \"id_konten\": \"...\",\n  \"voiceover_full\": \"Narasi Bahasa Indonesia lengkap ~55 kata, alami dan hangat\",\n  \"scenes\": [\n    {\"scene_no\": 1, \"duration\": 3, \"text\": \"Hook max 7 kata\", \"bg_color\": \"#1F4E5F\", \"text_color\": \"#FFFFFF\"},\n    {\"scene_no\": 2, \"duration\": 5, \"text\": \"Poin 1 max 8 kata\", \"bg_color\": \"#264653\", \"text_color\": \"#FFFFFF\"},\n    {\"scene_no\": 3, \"duration\": 6, \"text\": \"Poin 2 max 8 kata\", \"bg_color\": \"#2A9D8F\", \"text_color\": \"#FFFFFF\"},\n    {\"scene_no\": 4, \"duration\": 5, \"text\": \"Poin 3 max 8 kata\", \"bg_color\": \"#1F4E5F\", \"text_color\": \"#FFFFFF\"},\n    {\"scene_no\": 5, \"duration\": 4, \"text\": \"CTA Chat WA Sekarang\", \"bg_color\": \"#E76F51\", \"text_color\": \"#FFFFFF\"}\n  ]\n}"
+          "systemMessage": "Kamu adalah Sutradara Video Motion 9:16 (durasi ~22 detik). Kembalikan HANYA JSON valid tanpa markdown ```json:\n{\n  \"id_konten\": \"...\",\n  \"voiceover_full\": \"Narasi Bahasa Indonesia lengkap ~55 kata, alami dan hangat\",\n  \"scenes\": [\n    {\"scene_no\": 1, \"duration\": 4, \"text\": \"Hook max 7 kata\", \"narration\": \"Kalimat voiceover pembuka untuk scene 1 (1 kalimat pendek)\", \"bg_color\": \"#1F4E5F\", \"text_color\": \"#FFFFFF\"},\n    {\"scene_no\": 2, \"duration\": 5, \"text\": \"Poin 1 max 8 kata\", \"narration\": \"Kalimat voiceover penjelasan untuk scene 2\", \"bg_color\": \"#264653\", \"text_color\": \"#FFFFFF\"},\n    {\"scene_no\": 3, \"duration\": 5, \"text\": \"Poin 2 max 8 kata\", \"narration\": \"Kalimat voiceover fakta/proses untuk scene 3\", \"bg_color\": \"#2A9D8F\", \"text_color\": \"#FFFFFF\"},\n    {\"scene_no\": 4, \"duration\": 5, \"text\": \"Poin 3 max 8 kata\", \"narration\": \"Kalimat voiceover manfaat untuk scene 4\", \"bg_color\": \"#1F4E5F\", \"text_color\": \"#FFFFFF\"},\n    {\"scene_no\": 5, \"duration\": 4, \"text\": \"CTA Chat WA Sekarang\", \"narration\": \"Kalimat ajakan penutup untuk scene 5\", \"bg_color\": \"#E76F51\", \"text_color\": \"#FFFFFF\"}\n  ]\n}"
         }
       },
       "id": "ai-motion-director",
@@ -654,10 +654,10 @@
     },
     {
       "parameters": {
-        "jsCode": "const raw = $input.first().json.text || '{}';\nconst clean = raw.replace(/```json|```/g, '').trim();\nconst parsed = JSON.parse(clean);\n\nconst scenes = (parsed.scenes || []).map((s) => ({\n  comment: `Scene ${s.scene_no}`,\n  duration: s.duration || 4,\n  'background-color': s.bg_color || '#1F4E5F',\n  transition: { style: 'fade', duration: 0.4 },\n  elements: [\n    {\n      type: 'text',\n      text: s.text,\n      style: '003',\n      settings: {\n        'font-family': 'Montserrat',\n        'font-size': '64px',\n        'font-color': s.text_color || '#FFFFFF'\n      },\n      position: 'center-center'\n    }\n  ]\n}));\n\nreturn [{\n  json: {\n    id_konten: parsed.id_konten || $('Ambil Data Konten dari Sheets').item.json.ID_Konten,\n    payload: {\n      resolution: 'instagram-story',\n      quality: 'high',\n      draft: false,\n      scenes,\n      elements: [\n        {\n          type: 'voice',\n          text: parsed.voiceover_full,\n          model: 'azure',\n          voice: 'id-ID-GadisNeural'\n        },\n        {\n          type: 'subtitles',\n          settings: {\n            style: 'classic',\n            'font-family': 'Montserrat',\n            'font-size': '44px',\n            position: 'bottom-center'\n          }\n        }\n      ]\n    }\n  }\n}];"
+        "jsCode": "const raw = $input.first().json.text || '{}';\nconst clean = raw.replace(/```json|```/g, '').trim();\nconst parsed = JSON.parse(clean);\nconst sheetItem = $('Ambil Data Konten dari Sheets').item.json;\n\nreturn [{\n  json: {\n    id_konten: parsed.id_konten || sheetItem.ID_Konten || 'K-01',\n    pilar: sheetItem.Pilar || 'Konten Usaha',\n    topik: sheetItem.Topik || '',\n    voice: 'id-ID-GadisNeural',\n    voiceover_full: parsed.voiceover_full || '',\n    scenes: (parsed.scenes || []).map((s, idx) => ({\n      scene_no: s.scene_no || (idx + 1),\n      duration: s.duration || 4,\n      text: s.text || '',\n      narration: s.narration || s.text || '',\n      bg_color: s.bg_color || '#1F4E5F',\n      text_color: s.text_color || '#FFFFFF'\n    }))\n  }\n}];"
       },
       "id": "susun-payload-motion",
-      "name": "Susun Payload JSON2Video",
+      "name": "Susun Payload Video Motion Lokal",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -668,64 +668,20 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.json2video.com/v2/movies",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "ISI_API_KEY_JSON2VIDEO_ANDA"
-            }
-          ]
-        },
+        "url": "http://motion-renderer:8000/render",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.payload) }}",
-        "options": {}
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 120000
+        }
       },
-      "id": "render-json2video",
-      "name": "Render Video Motion (JSON2Video)",
+      "id": "render-local-vps",
+      "name": "Render Video Motion Gratis di VPS",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1360,
-        340
-      ]
-    },
-    {
-      "parameters": {
-        "amount": 35,
-        "unit": "seconds"
-      },
-      "id": "tunggu-render",
-      "name": "Tunggu Render Selesai (35s)",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        1580,
-        340
-      ]
-    },
-    {
-      "parameters": {
-        "url": "=https://api.json2video.com/v2/movies?project={{ $json.project }}",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "ISI_API_KEY_JSON2VIDEO_ANDA"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "ambil-url-video",
-      "name": "Ambil URL Video MP4",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1800,
+        1380,
         340
       ]
     },
@@ -746,7 +702,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "ID_Konten": "={{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}",
-            "Link_File_Media": "={{ $json.movie.url }}",
+            "Link_File_Media": "={{ $json.video_url }}",
             "Status": "Menunggu ACC"
           },
           "matchingColumns": [
@@ -789,7 +745,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        2020,
+        1640,
         340
       ]
     },
@@ -815,11 +771,11 @@
             },
             {
               "name": "message",
-              "value": "=Video motion untuk *{{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}* ({{ $('Ambil Data Konten dari Sheets').item.json.Topik }}) sudah jadi!\n\nLink MP4: {{ $('Ambil URL Video MP4').item.json.movie.url }}\n\nBalas *ACC {{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}* jika sudah siap tayang, atau *Revisi {{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}: <catatan>*."
+              "value": "=Video motion untuk *{{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}* ({{ $('Ambil Data Konten dari Sheets').item.json.Topik }}) sudah selesai dirender di VPS!\n\nLink MP4: {{ $('Render Video Motion Gratis di VPS').item.json.video_url }}\n\nBalas *ACC {{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}* jika sudah siap tayang, atau *Revisi {{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}: <catatan>*."
             },
             {
               "name": "url",
-              "value": "={{ $('Ambil URL Video MP4').item.json.movie.url }}"
+              "value": "={{ $('Render Video Motion Gratis di VPS').item.json.video_url }}"
             }
           ]
         },
@@ -830,7 +786,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2240,
+        1900,
         340
       ]
     }
@@ -1012,47 +968,25 @@
       "main": [
         [
           {
-            "node": "Susun Payload JSON2Video",
+            "node": "Susun Payload Video Motion Lokal",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Susun Payload JSON2Video": {
+    "Susun Payload Video Motion Lokal": {
       "main": [
         [
           {
-            "node": "Render Video Motion (JSON2Video)",
+            "node": "Render Video Motion Gratis di VPS",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Render Video Motion (JSON2Video)": {
-      "main": [
-        [
-          {
-            "node": "Tunggu Render Selesai (35s)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Tunggu Render Selesai (35s)": {
-      "main": [
-        [
-          {
-            "node": "Ambil URL Video MP4",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ambil URL Video MP4": {
+    "Render Video Motion Gratis di VPS": {
       "main": [
         [
           {

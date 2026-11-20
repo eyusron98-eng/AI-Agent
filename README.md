@@ -44,16 +44,18 @@ Di atas semua tim terdapat **Manajer AI** yang menerima perintah pemilik dan mem
 | File | Fungsi |
 |---|---|
 | [`blueprint_tim_ai_agent.md`](./blueprint_tim_ai_agent.md) | Blueprint menyeluruh Manajer AI dan 3 tim besar (Usaha, Peneliti, Konten), pilihan platform, tahapan, dan aturan keamanan. |
-| [`desain_tim_konten_kreator.md`](./desain_tim_konten_kreator.md) | Desain utuh Tim Konten Kreator: arsitektur, skema 1 vs 2 nomor Fonnte, peran 5 spesialis, struktur 4 tab Sheets, kamus perintah WA, contoh payload JSON2Video, dan 3 system prompt siap salin. |
-| [`n8n_tim_konten_fonnte_motion.json`](./n8n_tim_konten_fonnte_motion.json) | Template workflow **n8n Cloud** siap impor dengan **Google Gemini (`gemini-2.5-flash`)**, **Fonnte Skema A (2 Nomor)**, memori percakapan WA, 6 tool Google Sheets (`$fromAI`), dan render otomatis **JSON2Video**. |
-| [`panduan_setup_n8n_cloud_gemini_fonnte.md`](./panduan_setup_n8n_cloud_gemini_fonnte.md) | Panduan langkah demi langkah pasang workflow di n8n Cloud, koneksi Google Gemini API, Google Sheets OAuth2, Token Fonnte Skema A, dan 5 checklist uji coba dari WhatsApp. |
+| [`desain_tim_konten_kreator.md`](./desain_tim_konten_kreator.md) | Desain utuh Tim Konten Kreator: arsitektur, skema 1 vs 2 nomor Fonnte, peran 5 spesialis, struktur 4 tab Sheets, kamus perintah WA, dan 3 system prompt siap salin. |
+| [`n8n_tim_konten_fonnte_motion.json`](./n8n_tim_konten_fonnte_motion.json) | Template workflow **n8n 100% Gratis di VPS** dengan **Google Gemini (`gemini-2.5-flash`)**, **Fonnte Skema A (2 Nomor)**, 6 tool Google Sheets (`$fromAI`), dan **Mesin Render Video Motion Lokal (`http://motion-renderer:8000/render`)**. |
+| [`panduan_setup_vps_biznet_gratis.md`](./panduan_setup_vps_biznet_gratis.md) | **Panduan Utama (100% Gratis):** Instalasi 1 perintah di **VPS Biznet (Ubuntu 26)** lengkap dengan n8n Self-Host, Mesin Video Motion 9:16 + TTS Bahasa Indonesia gratis, SSL/HTTPS otomatis (`sslip.io`), dan Google Service Account. |
+| [`vps/`](./vps) | Paket Docker Compose (`n8n` + `motion-renderer` FastAPI/FFmpeg/edge-tts + `Caddy` HTTPS otomatis) dan script [`vps/install.sh`](./vps/install.sh). |
 | [`data/sheets_batch_template.json`](./data/sheets_batch_template.json) | Struktur JSON kolom dan contoh data awal untuk 4 tab Google Sheets. |
 
-## 5. Langkah Setup Berikutnya (n8n Cloud + Google Gemini + Fonnte Skema A)
+## 5. Cara Install 100% Gratis di VPS Biznet (Ubuntu 26)
 
-Ikuti panduan lengkap di [`panduan_setup_n8n_cloud_gemini_fonnte.md`](./panduan_setup_n8n_cloud_gemini_fonnte.md):
-1. Isi data produk & riset asli pada tab `Katalog_Produk_&_Fakta` di [Database_Tim_Konten](https://docs.google.com/spreadsheets/d/1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4/edit).
-2. Import [`n8n_tim_konten_fonnte_motion.json`](./n8n_tim_konten_fonnte_motion.json) ke **n8n Cloud**.
-3. Hubungkan kredensial **Google Gemini API (Google AI Studio)**, **Google Sheets (OAuth2)**, **Token Fonnte (Nomor Bot)**, dan **API Key JSON2Video**.
-4. Ganti `6281234567890` di node **Filter Nomor Pemilik (Skema A)** dengan nomor WA pribadimu (`628...`).
-5. Tempel **Production Webhook URL** dari n8n Cloud ke dashboard **Fonnte → Device → Webhook URL**, aktifkan workflow, lalu uji kirim `Ide minggu ini` dari WA pribadimu ke nomor bot.
+Jalankan 1 baris perintah ini di terminal SSH VPS Ubuntu kamu:
+
+```bash
+git clone https://github.com/eyusron98-eng/AI-Agent.git ~/AI-Agent && cd ~/AI-Agent/vps && sudo bash install.sh
+```
+
+Ikuti panduan lengkap langkah demi langkah di [`panduan_setup_vps_biznet_gratis.md`](./panduan_setup_vps_biznet_gratis.md).
