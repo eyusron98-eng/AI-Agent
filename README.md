@@ -45,12 +45,15 @@ Di atas semua tim terdapat **Manajer AI** yang menerima perintah pemilik dan mem
 |---|---|
 | [`blueprint_tim_ai_agent.md`](./blueprint_tim_ai_agent.md) | Blueprint menyeluruh Manajer AI dan 3 tim besar (Usaha, Peneliti, Konten), pilihan platform, tahapan, dan aturan keamanan. |
 | [`desain_tim_konten_kreator.md`](./desain_tim_konten_kreator.md) | Desain utuh Tim Konten Kreator: arsitektur, skema 1 vs 2 nomor Fonnte, peran 5 spesialis, struktur 4 tab Sheets, kamus perintah WA, contoh payload JSON2Video, dan 3 system prompt siap salin. |
-| [`n8n_tim_konten_fonnte_motion.json`](./n8n_tim_konten_fonnte_motion.json) | Template workflow n8n siap impor (Webhook Fonnte -> Filter `/ai` -> AI Manajer & Google Sheets -> AI Motion Director -> JSON2Video -> Kirim Video via Fonnte). |
+| [`n8n_tim_konten_fonnte_motion.json`](./n8n_tim_konten_fonnte_motion.json) | Template workflow **n8n Cloud** siap impor dengan **Google Gemini (`gemini-2.5-flash`)**, **Fonnte Skema A (2 Nomor)**, memori percakapan WA, 6 tool Google Sheets (`$fromAI`), dan render otomatis **JSON2Video**. |
+| [`panduan_setup_n8n_cloud_gemini_fonnte.md`](./panduan_setup_n8n_cloud_gemini_fonnte.md) | Panduan langkah demi langkah pasang workflow di n8n Cloud, koneksi Google Gemini API, Google Sheets OAuth2, Token Fonnte Skema A, dan 5 checklist uji coba dari WhatsApp. |
 | [`data/sheets_batch_template.json`](./data/sheets_batch_template.json) | Struktur JSON kolom dan contoh data awal untuk 4 tab Google Sheets. |
 
-## 5. Langkah Setup Berikutnya (n8n + Fonnte + JSON2Video)
+## 5. Langkah Setup Berikutnya (n8n Cloud + Google Gemini + Fonnte Skema A)
 
-1. Import [`n8n_tim_konten_fonnte_motion.json`](./n8n_tim_konten_fonnte_motion.json) ke instance **n8n**.
-2. Isi kredensial **Google Sheets**, **OpenAI/Gemini**, **Token Fonnte**, dan **API Key JSON2Video** pada node terkait.
-3. Sesuaikan whitelist nomor pengirim (dan aktif/nonaktifnya prefix `/ai`) di node **Filter Nomor & Prefix (/ai)**.
-4. Tempel **Production Webhook URL** dari n8n ke dashboard **Fonnte → Device → Webhook URL**, aktifkan workflow, lalu uji dengan mengirim `/ai Ide minggu ini` lewat WhatsApp.
+Ikuti panduan lengkap di [`panduan_setup_n8n_cloud_gemini_fonnte.md`](./panduan_setup_n8n_cloud_gemini_fonnte.md):
+1. Isi data produk & riset asli pada tab `Katalog_Produk_&_Fakta` di [Database_Tim_Konten](https://docs.google.com/spreadsheets/d/1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4/edit).
+2. Import [`n8n_tim_konten_fonnte_motion.json`](./n8n_tim_konten_fonnte_motion.json) ke **n8n Cloud**.
+3. Hubungkan kredensial **Google Gemini API (Google AI Studio)**, **Google Sheets (OAuth2)**, **Token Fonnte (Nomor Bot)**, dan **API Key JSON2Video**.
+4. Ganti `6281234567890` di node **Filter Nomor Pemilik (Skema A)** dengan nomor WA pribadimu (`628...`).
+5. Tempel **Production Webhook URL** dari n8n Cloud ke dashboard **Fonnte → Device → Webhook URL**, aktifkan workflow, lalu uji kirim `Ide minggu ini` dari WA pribadimu ke nomor bot.

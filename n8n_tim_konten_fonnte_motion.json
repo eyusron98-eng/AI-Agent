@@ -1,19 +1,19 @@
 {
-  "name": "Tim Konten Kreator AI (Fonnte + Sheets + Video Motion)",
+  "name": "Tim Konten Kreator AI (Fonnte Skema A + Gemini + Sheets + Video Motion)",
   "nodes": [
     {
       "parameters": {
-        "content": "## Panduan Setup Cepat\n1. Pasang kredensial **OpenAI / Gemini** di node *Model AI*.\n2. Pasang kredensial **Google Sheets** di node *Baca/Tulis Sheets* (ID Spreadsheet sudah diisi otomatis: `1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4`).\n3. Di node **Filter Nomor & Prefix (/ai)**:\n   - **Skema B (1 Nomor WA):** Biarkan filter prefix `/ai` aktif dan isi nomor WA-mu di whitelist agar chat pelanggan tidak dibalas bot.\n   - **Skema A (2 Nomor WA Khusus Bot):** Hapus syarat prefix `/ai`, cukup filter nomor WA pribadimu.\n4. Isi Header `Authorization` dengan **Token Fonnte** pada kedua node *Kirim ... via Fonnte*.\n5. Isi Header `x-api-key` dengan **API Key JSON2Video** pada node *Render Video Motion*.\n6. Salin Production URL dari node **Webhook Fonnte Masuk** ke Dashboard Fonnte -> Device -> Webhook URL.",
-        "height": 340,
-        "width": 520
+        "content": "## Panduan Setup Cepat (n8n Cloud + Google Gemini + Fonnte Skema A)\n1. **Google Gemini API:** Buka node *Google Gemini (Manajer)* dan *Google Gemini (Motion)* -> Create New Credential -> tempel API Key dari **Google AI Studio (aistudio.google.com)**.\n2. **Google Sheets:** Buka salah satu node Google Sheets -> hubungkan akun Google-mu (OAuth2). ID Spreadsheet `1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4` sudah terisi otomatis.\n3. **Filter Nomor Pemilik (Skema A - 2 Nomor):** Buka node *Filter Nomor Pemilik (Skema A)* -> ganti `6281234567890` dengan nomor WA pribadimu (yang dipakai untuk mengirim perintah ke nomor bot).\n4. **Token Fonnte:** Buka node *Kirim Balasan Teks via Fonnte* dan *Kirim Video via Fonnte* -> ganti `ISI_TOKEN_FONNTE_ANDA` dengan Device Token nomor bot dari dashboard Fonnte.\n5. **JSON2Video:** Buka node *Render Video Motion* dan *Ambil URL Video MP4* -> ganti `ISI_API_KEY_JSON2VIDEO_ANDA` dengan API Key dari json2video.com.\n6. **Aktifkan Workflow:** Klik toggle **Active** di kanan atas n8n Cloud, salin **Production URL** dari node *Webhook Fonnte Masuk*, lalu tempel ke **Dashboard Fonnte -> Device -> Webhook URL**.",
+        "height": 380,
+        "width": 620
       },
       "id": "sticky-panduan",
       "name": "Panduan Setup",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -420,
-        -220
+        -460,
+        -280
       ]
     },
     {
@@ -27,7 +27,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -380,
+        -420,
         200
       ],
       "webhookId": "fonnte-tim-konten"
@@ -51,17 +51,8 @@
               }
             },
             {
-              "id": "cond-prefix-ai",
-              "leftValue": "={{ ($json.body.message || $json.message || '').trim() }}",
-              "rightValue": "/ai",
-              "operator": {
-                "type": "string",
-                "operation": "startsWith"
-              }
-            },
-            {
               "id": "cond-sender-whitelist",
-              "leftValue": "={{ $json.body.sender || $json.sender || '' }}",
+              "leftValue": "={{ String($json.body.sender || $json.sender || '').replace(/[^0-9]/g, '') }}",
               "rightValue": "6281234567890",
               "operator": {
                 "type": "string",
@@ -74,14 +65,14 @@
         "options": {}
       },
       "id": "filter-nomor-prefix",
-      "name": "Filter Nomor & Prefix (/ai)",
+      "name": "Filter Nomor Pemilik (Skema A)",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -120,
+        -160,
         200
       ],
-      "notes": "Ganti 6281234567890 dengan nomor WA-mu (format 628...). Jika memakai 2 nomor khusus bot (Skema A), hapus kondisi startsWith /ai."
+      "notes": "Skema A (2 Nomor WA): Cukup ganti 6281234567890 dengan nomor WA pribadimu (format 628...). Tidak perlu mengetik /ai di awal chat."
     },
     {
       "parameters": {
@@ -90,7 +81,7 @@
             {
               "id": "assign-sender",
               "name": "sender",
-              "value": "={{ $json.body.sender || $json.sender }}",
+              "value": "={{ String($json.body.sender || $json.sender || '').replace(/[^0-9]/g, '') }}",
               "type": "string"
             },
             {
@@ -102,7 +93,7 @@
             {
               "id": "assign-is-video",
               "name": "is_video_command",
-              "value": "={{ /^video\\b/i.test(($json.body.message || $json.message || '').replace(/^\\/ai\\s*/i, '').trim()) }}",
+              "value": "={{ /^video\\s+[a-z0-9-]+/i.test(($json.body.message || $json.message || '').replace(/^\\/ai\\s*/i, '').trim()) }}",
               "type": "boolean"
             }
           ]
@@ -114,7 +105,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        120,
+        100,
         200
       ]
     },
@@ -155,7 +146,7 @@
         "promptType": "define",
         "text": "={{ $json.perintah }}",
         "options": {
-          "systemMessage": "Kamu adalah Manajer Konten AI sekaligus Spesialis Riset & Copywriter untuk 4 pilar usaha: Koperasi (pasokan bahan dapur), Sabun (sabun alami rintisan), Dapur (kuliner harian), dan Riset (edukasi ilmiah populer).\n\nAturan wajib:\n1. Selalu baca tab Katalog_Produk_&_Fakta, Bank_Riset_Ide, dan Kalender_Konten dari Google Sheets sebelum menjawab.\n2. PATUHI kolom Klaim_Terlarang di Katalog_Produk_&_Fakta. Jangan pernah mengarang harga, bahan, atau klaim medis/anti-bakteri.\n3. Untuk ide baru, simpan ke Bank_Riset_Ide. Untuk draft naskah baru, simpan ke Kalender_Konten dengan status 'Menunggu ACC'.\n4. JANGAN PERNAH mengubah status menjadi 'Siap Tayang' kecuali pemilik menulis 'ACC <ID_Konten>'.\n5. Balas singkat dalam Bahasa Indonesia yang rapi untuk layar WhatsApp (maksimal 250 kata)."
+          "systemMessage": "Kamu adalah Manajer Konten AI sekaligus Spesialis Riset, Copywriter, & Analis untuk 4 pilar usaha:\n1. Koperasi (pasokan bahan dapur)\n2. Sabun (sabun alami rintisan)\n3. Dapur (kuliner & masakan harian)\n4. Riset (edukasi ilmiah populer & formulasi)\n\nAturan wajib:\n1. Selalu panggil tool `Baca_Katalog_Produk`, `Baca_Bank_Ide`, dan `Baca_Kalender_Konten` terlebih dahulu sebelum membuat ide atau naskah.\n2. PATUHI kolom `Klaim_Terlarang` di `Katalog_Produk_&_Fakta`. Dilarang mengarang harga, komposisi bahan, atau membuat klaim medis/anti-bakteri yang dilarang BPOM/PIRT.\n3. Jika diminta membuat ide baru (misal: 'Ide minggu ini' atau 'Ide khusus Sabun'):\n   - Cek `Baca_Bank_Ide` agar ID_Riset melanjutkan nomor terakhir (misal R-04, R-05, dst.) dan topik tidak duplikat.\n   - Simpan setiap ide baru ke Google Sheets memakai tool `Simpan_Bank_Ide` dengan `Status_Pakai` = 'Belum Dipakai'.\n4. Jika diminta membuat draft naskah (misal: 'Draft K-01' atau 'Buatkan naskah dari R-01'):\n   - Susun `Hook_3_Detik`, `Naskah_Lengkap` (bagi 4-5 bagian scene untuk video motion), `Caption_Hashtag` (lengkap CTA ke WA), dan `Prompt_Visual` (dalam bahasa Inggris).\n   - Simpan ke Google Sheets memakai tool `Simpan_Kalender_Konten` dengan `Status` = 'Menunggu ACC'.\n5. Jika pemilik mengirim 'ACC <ID_Konten>' (misal 'ACC K-01'):\n   - Baca data baris tersebut dengan `Baca_Kalender_Konten`, lalu update memakai `Simpan_Kalender_Konten` dengan mengubah `Status` menjadi 'Siap Tayang'.\n6. Jika pemilik mengirim 'Revisi <ID_Konten>: <catatan>':\n   - Perbaiki bagian naskah/hook/caption sesuai catatan, simpan kembali ke `Simpan_Kalender_Konten` dengan `Status` = 'Menunggu ACC' dan isi `Catatan_Revisi`.\n7. Jika pemilik meminta 'Laporan minggu ini':\n   - Panggil `Baca_Kalender_Konten` dan `Baca_Performa_Konten`, lalu rangkum status konten serta insight performanya.\n8. Balas singkat dalam Bahasa Indonesia yang rapi dan nyaman dibaca di WhatsApp (maksimal 250 kata per pesan)."
         }
       },
       "id": "ai-manajer-konten",
@@ -163,22 +154,39 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
       "position": [
-        620,
-        80
+        680,
+        60
       ]
     },
     {
       "parameters": {
-        "model": "gpt-4o-mini",
-        "options": {}
+        "modelName": "models/gemini-2.5-flash",
+        "options": {
+          "temperature": 0.4
+        }
       },
       "id": "model-ai-manajer",
-      "name": "Model AI (Manajer)",
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
+      "name": "Google Gemini (Manajer)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
       "position": [
-        520,
-        -120
+        440,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Rapikan Perintah Masuk').item.json.sender }}",
+        "contextWindowLength": 6
+      },
+      "id": "memory-wa-manajer",
+      "name": "Memori Chat WA",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        580,
+        -180
       ]
     },
     {
@@ -198,18 +206,43 @@
         "options": {}
       },
       "id": "tool-baca-katalog",
-      "name": "Baca Katalog Produk & Fakta",
+      "name": "Baca_Katalog_Produk",
       "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.5,
       "position": [
-        700,
-        -120
+        720,
+        -180
       ]
     },
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Baca atau tambah ide riset konten di tab Bank_Riset_Ide.",
+        "toolDescription": "Baca seluruh daftar ide riset yang sudah ada di tab Bank_Riset_Ide.",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Bank_Riset_Ide"
+        },
+        "options": {}
+      },
+      "id": "tool-baca-bank-ide",
+      "name": "Baca_Bank_Ide",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        860,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Tambah atau update baris ide riset di tab Bank_Riset_Ide.",
         "operation": "appendOrUpdate",
         "documentId": {
           "__rl": true,
@@ -222,27 +255,125 @@
           "value": "Bank_Riset_Ide"
         },
         "columns": {
-          "mappingMode": "autoMapInputData",
-          "value": {},
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Riset": "={{ $fromAI('ID_Riset', 'Kode unik ide riset, misal R-04') }}",
+            "Tanggal": "={{ $fromAI('Tanggal', 'Tanggal hari ini format YYYY-MM-DD') }}",
+            "Pilar": "={{ $fromAI('Pilar', 'Salah satu dari: Koperasi, Sabun, Dapur, Riset') }}",
+            "Masalah_Audiens_atau_Tren": "={{ $fromAI('Masalah_Audiens_atau_Tren', 'Masalah audiens atau tren yang dibahas') }}",
+            "Sudut_Pandang": "={{ $fromAI('Sudut_Pandang', 'Sudut pandang konten') }}",
+            "Referensi": "={{ $fromAI('Referensi', 'Sumber atau referensi fakta') }}",
+            "Status_Pakai": "={{ $fromAI('Status_Pakai', 'Status pakai: Belum Dipakai atau Sudah Jadi <ID_Konten>') }}"
+          },
           "matchingColumns": [
             "ID_Riset"
+          ],
+          "schema": [
+            {
+              "id": "ID_Riset",
+              "displayName": "ID_Riset",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tanggal",
+              "displayName": "Tanggal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pilar",
+              "displayName": "Pilar",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Masalah_Audiens_atau_Tren",
+              "displayName": "Masalah_Audiens_atau_Tren",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sudut_Pandang",
+              "displayName": "Sudut_Pandang",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Referensi",
+              "displayName": "Referensi",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status_Pakai",
+              "displayName": "Status_Pakai",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
           ]
         },
         "options": {}
       },
-      "id": "tool-bank-ide",
-      "name": "Kelola Bank Riset Ide",
+      "id": "tool-simpan-bank-ide",
+      "name": "Simpan_Bank_Ide",
       "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.5,
       "position": [
-        880,
-        -120
+        1000,
+        -180
       ]
     },
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Baca, tambah, atau update status/naskah di tab Kalender_Konten.",
+        "toolDescription": "Baca seluruh jadwal, naskah, dan status konten dari tab Kalender_Konten.",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Kalender_Konten"
+        },
+        "options": {}
+      },
+      "id": "tool-baca-kalender",
+      "name": "Baca_Kalender_Konten",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        1140,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Tambah atau update draft naskah, status ACC, atau revisi di tab Kalender_Konten.",
         "operation": "appendOrUpdate",
         "documentId": {
           "__rl": true,
@@ -255,21 +386,169 @@
           "value": "Kalender_Konten"
         },
         "columns": {
-          "mappingMode": "autoMapInputData",
-          "value": {},
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Konten": "={{ $fromAI('ID_Konten', 'Kode unik konten, misal K-01, K-02, K-03') }}",
+            "Tanggal_Tayang": "={{ $fromAI('Tanggal_Tayang', 'Tanggal rencana tayang format YYYY-MM-DD') }}",
+            "Pilar": "={{ $fromAI('Pilar', 'Salah satu dari: Koperasi, Sabun, Dapur, Riset') }}",
+            "Format": "={{ $fromAI('Format', 'Format konten: Reels, Carousel, atau Single Post') }}",
+            "Topik": "={{ $fromAI('Topik', 'Judul atau topik konten singkat') }}",
+            "Hook_3_Detik": "={{ $fromAI('Hook_3_Detik', 'Kalimat pembuka 3 detik pertama yang memancing perhatian') }}",
+            "Naskah_Lengkap": "={{ $fromAI('Naskah_Lengkap', 'Naskah lengkap terbagi menjadi 4-5 bagian/scene') }}",
+            "Caption_Hashtag": "={{ $fromAI('Caption_Hashtag', 'Caption lengkap dengan CTA dan 3-5 hashtag') }}",
+            "Prompt_Visual": "={{ $fromAI('Prompt_Visual', 'Prompt visual bahasa Inggris untuk latar gambar/video') }}",
+            "Link_File_Media": "={{ $fromAI('Link_File_Media', 'Link file media jika ada, atau kosongkan') }}",
+            "Status": "={{ $fromAI('Status', 'Status: Draft Naskah, Menunggu ACC, Siap Tayang, atau Revisi') }}",
+            "Catatan_Revisi": "={{ $fromAI('Catatan_Revisi', 'Catatan revisi atau tanda -') }}"
+          },
           "matchingColumns": [
             "ID_Konten"
+          ],
+          "schema": [
+            {
+              "id": "ID_Konten",
+              "displayName": "ID_Konten",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tanggal_Tayang",
+              "displayName": "Tanggal_Tayang",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pilar",
+              "displayName": "Pilar",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Format",
+              "displayName": "Format",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Topik",
+              "displayName": "Topik",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hook_3_Detik",
+              "displayName": "Hook_3_Detik",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Naskah_Lengkap",
+              "displayName": "Naskah_Lengkap",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Caption_Hashtag",
+              "displayName": "Caption_Hashtag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt_Visual",
+              "displayName": "Prompt_Visual",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link_File_Media",
+              "displayName": "Link_File_Media",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Catatan_Revisi",
+              "displayName": "Catatan_Revisi",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
           ]
         },
         "options": {}
       },
-      "id": "tool-kalender-konten",
-      "name": "Kelola Kalender Konten",
+      "id": "tool-simpan-kalender",
+      "name": "Simpan_Kalender_Konten",
       "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.5,
       "position": [
-        1060,
-        -120
+        1280,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Baca data metrik views, likes, saves, dan chat WA masuk dari tab Performa_Konten.",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Performa_Konten"
+        },
+        "options": {}
+      },
+      "id": "tool-baca-performa",
+      "name": "Baca_Performa_Konten",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        1420,
+        -180
       ]
     },
     {
@@ -305,8 +584,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        980,
-        80
+        1080,
+        60
       ]
     },
     {
@@ -359,13 +638,15 @@
     },
     {
       "parameters": {
-        "model": "gpt-4o-mini",
-        "options": {}
+        "modelName": "models/gemini-2.5-flash",
+        "options": {
+          "temperature": 0.3
+        }
       },
       "id": "model-ai-motion",
-      "name": "Model AI (Motion)",
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
+      "name": "Google Gemini (Motion)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
       "position": [
         860,
         540
@@ -373,7 +654,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const raw = $input.first().json.text || '{}';\nconst clean = raw.replace(/```json|```/g, '').trim();\nconst parsed = JSON.parse(clean);\n\nconst scenes = (parsed.scenes || []).map((s) => ({\n  comment: `Scene ${s.scene_no}`,\n  duration: s.duration || 4,\n  'background-color': s.bg_color || '#1F4E5F',\n  transition: { style: 'fade', duration: 0.4 },\n  elements: [\n    {\n      type: 'text',\n      text: s.text,\n      style: '003',\n      settings: {\n        'font-family': 'Montserrat',\n        'font-size': '64px',\n        'font-color': s.text_color || '#FFFFFF'\n      },\n      position: 'center-center'\n    }\n  ]\n}));\n\nreturn [{\n  json: {\n    id_konten: parsed.id_konten,\n    payload: {\n      resolution: 'instagram-story',\n      quality: 'high',\n      draft: false,\n      scenes,\n      elements: [\n        {\n          type: 'voice',\n          text: parsed.voiceover_full,\n          model: 'azure'\n        },\n        {\n          type: 'subtitles',\n          settings: {\n            style: 'classic',\n            'font-family': 'Montserrat',\n            'font-size': '44px',\n            position: 'bottom-center'\n          }\n        }\n      ]\n    }\n  }\n}];"
+        "jsCode": "const raw = $input.first().json.text || '{}';\nconst clean = raw.replace(/```json|```/g, '').trim();\nconst parsed = JSON.parse(clean);\n\nconst scenes = (parsed.scenes || []).map((s) => ({\n  comment: `Scene ${s.scene_no}`,\n  duration: s.duration || 4,\n  'background-color': s.bg_color || '#1F4E5F',\n  transition: { style: 'fade', duration: 0.4 },\n  elements: [\n    {\n      type: 'text',\n      text: s.text,\n      style: '003',\n      settings: {\n        'font-family': 'Montserrat',\n        'font-size': '64px',\n        'font-color': s.text_color || '#FFFFFF'\n      },\n      position: 'center-center'\n    }\n  ]\n}));\n\nreturn [{\n  json: {\n    id_konten: parsed.id_konten || $('Ambil Data Konten dari Sheets').item.json.ID_Konten,\n    payload: {\n      resolution: 'instagram-story',\n      quality: 'high',\n      draft: false,\n      scenes,\n      elements: [\n        {\n          type: 'voice',\n          text: parsed.voiceover_full,\n          model: 'azure',\n          voice: 'id-ID-GadisNeural'\n        },\n        {\n          type: 'subtitles',\n          settings: {\n            style: 'classic',\n            'font-family': 'Montserrat',\n            'font-size': '44px',\n            position: 'bottom-center'\n          }\n        }\n      ]\n    }\n  }\n}];"
       },
       "id": "susun-payload-motion",
       "name": "Susun Payload JSON2Video",
@@ -450,6 +731,70 @@
     },
     {
       "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Kalender_Konten"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Konten": "={{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}",
+            "Link_File_Media": "={{ $json.movie.url }}",
+            "Status": "Menunggu ACC"
+          },
+          "matchingColumns": [
+            "ID_Konten"
+          ],
+          "schema": [
+            {
+              "id": "ID_Konten",
+              "displayName": "ID_Konten",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link_File_Media",
+              "displayName": "Link_File_Media",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "simpan-url-video-sheets",
+      "name": "Simpan Link Video ke Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2020,
+        340
+      ]
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "https://api.fonnte.com/send",
         "sendHeaders": true,
@@ -470,11 +815,11 @@
             },
             {
               "name": "message",
-              "value": "=Video motion untuk {{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }} sudah jadi! Link: {{ $json.movie.url }}\n\nBalas 'ACC {{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}' jika sudah oke."
+              "value": "=Video motion untuk *{{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}* ({{ $('Ambil Data Konten dari Sheets').item.json.Topik }}) sudah jadi!\n\nLink MP4: {{ $('Ambil URL Video MP4').item.json.movie.url }}\n\nBalas *ACC {{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}* jika sudah siap tayang, atau *Revisi {{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}: <catatan>*."
             },
             {
               "name": "url",
-              "value": "={{ $json.movie.url }}"
+              "value": "={{ $('Ambil URL Video MP4').item.json.movie.url }}"
             }
           ]
         },
@@ -485,7 +830,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2040,
+        2240,
         340
       ]
     }
@@ -495,14 +840,14 @@
       "main": [
         [
           {
-            "node": "Filter Nomor & Prefix (/ai)",
+            "node": "Filter Nomor Pemilik (Skema A)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Filter Nomor & Prefix (/ai)": {
+    "Filter Nomor Pemilik (Skema A)": {
       "main": [
         [
           {
@@ -542,7 +887,7 @@
         ]
       ]
     },
-    "Model AI (Manajer)": {
+    "Google Gemini (Manajer)": {
       "ai_languageModel": [
         [
           {
@@ -553,7 +898,18 @@
         ]
       ]
     },
-    "Baca Katalog Produk & Fakta": {
+    "Memori Chat WA": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Manajer & Konten",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baca_Katalog_Produk": {
       "ai_tool": [
         [
           {
@@ -564,7 +920,7 @@
         ]
       ]
     },
-    "Kelola Bank Riset Ide": {
+    "Baca_Bank_Ide": {
       "ai_tool": [
         [
           {
@@ -575,7 +931,40 @@
         ]
       ]
     },
-    "Kelola Kalender Konten": {
+    "Simpan_Bank_Ide": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Manajer & Konten",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baca_Kalender_Konten": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Manajer & Konten",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simpan_Kalender_Konten": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Manajer & Konten",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baca_Performa_Konten": {
       "ai_tool": [
         [
           {
@@ -608,7 +997,7 @@
         ]
       ]
     },
-    "Model AI (Motion)": {
+    "Google Gemini (Motion)": {
       "ai_languageModel": [
         [
           {
@@ -664,6 +1053,17 @@
       ]
     },
     "Ambil URL Video MP4": {
+      "main": [
+        [
+          {
+            "node": "Simpan Link Video ke Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simpan Link Video ke Sheets": {
       "main": [
         [
           {
