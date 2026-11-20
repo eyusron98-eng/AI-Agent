@@ -1,0 +1,683 @@
+{
+  "name": "Tim Konten Kreator AI (Fonnte + Sheets + Video Motion)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Panduan Setup Cepat\n1. Pasang kredensial **OpenAI / Gemini** di node *Model AI*.\n2. Pasang kredensial **Google Sheets** di node *Baca/Tulis Sheets* (ID Spreadsheet sudah diisi otomatis: `1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4`).\n3. Di node **Filter Nomor & Prefix (/ai)**:\n   - **Skema B (1 Nomor WA):** Biarkan filter prefix `/ai` aktif dan isi nomor WA-mu di whitelist agar chat pelanggan tidak dibalas bot.\n   - **Skema A (2 Nomor WA Khusus Bot):** Hapus syarat prefix `/ai`, cukup filter nomor WA pribadimu.\n4. Isi Header `Authorization` dengan **Token Fonnte** pada kedua node *Kirim ... via Fonnte*.\n5. Isi Header `x-api-key` dengan **API Key JSON2Video** pada node *Render Video Motion*.\n6. Salin Production URL dari node **Webhook Fonnte Masuk** ke Dashboard Fonnte -> Device -> Webhook URL.",
+        "height": 340,
+        "width": 520
+      },
+      "id": "sticky-panduan",
+      "name": "Panduan Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -420,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fonnte-tim-konten",
+        "options": {}
+      },
+      "id": "webhook-fonnte-masuk",
+      "name": "Webhook Fonnte Masuk",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -380,
+        200
+      ],
+      "webhookId": "fonnte-tim-konten"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-not-empty",
+              "leftValue": "={{ $json.body.message || $json.message || '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "cond-prefix-ai",
+              "leftValue": "={{ ($json.body.message || $json.message || '').trim() }}",
+              "rightValue": "/ai",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            },
+            {
+              "id": "cond-sender-whitelist",
+              "leftValue": "={{ $json.body.sender || $json.sender || '' }}",
+              "rightValue": "6281234567890",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "filter-nomor-prefix",
+      "name": "Filter Nomor & Prefix (/ai)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -120,
+        200
+      ],
+      "notes": "Ganti 6281234567890 dengan nomor WA-mu (format 628...). Jika memakai 2 nomor khusus bot (Skema A), hapus kondisi startsWith /ai."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign-sender",
+              "name": "sender",
+              "value": "={{ $json.body.sender || $json.sender }}",
+              "type": "string"
+            },
+            {
+              "id": "assign-command",
+              "name": "perintah",
+              "value": "={{ ($json.body.message || $json.message || '').replace(/^\\/ai\\s*/i, '').trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "assign-is-video",
+              "name": "is_video_command",
+              "value": "={{ /^video\\b/i.test(($json.body.message || $json.message || '').replace(/^\\/ai\\s*/i, '').trim()) }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "rapikan-pesan",
+      "name": "Rapikan Perintah Masuk",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        120,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-video",
+              "leftValue": "={{ $json.is_video_command }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "cek-perintah-video",
+      "name": "Apakah Perintah Video Motion?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        340,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.perintah }}",
+        "options": {
+          "systemMessage": "Kamu adalah Manajer Konten AI sekaligus Spesialis Riset & Copywriter untuk 4 pilar usaha: Koperasi (pasokan bahan dapur), Sabun (sabun alami rintisan), Dapur (kuliner harian), dan Riset (edukasi ilmiah populer).\n\nAturan wajib:\n1. Selalu baca tab Katalog_Produk_&_Fakta, Bank_Riset_Ide, dan Kalender_Konten dari Google Sheets sebelum menjawab.\n2. PATUHI kolom Klaim_Terlarang di Katalog_Produk_&_Fakta. Jangan pernah mengarang harga, bahan, atau klaim medis/anti-bakteri.\n3. Untuk ide baru, simpan ke Bank_Riset_Ide. Untuk draft naskah baru, simpan ke Kalender_Konten dengan status 'Menunggu ACC'.\n4. JANGAN PERNAH mengubah status menjadi 'Siap Tayang' kecuali pemilik menulis 'ACC <ID_Konten>'.\n5. Balas singkat dalam Bahasa Indonesia yang rapi untuk layar WhatsApp (maksimal 250 kata)."
+        }
+      },
+      "id": "ai-manajer-konten",
+      "name": "AI Manajer & Konten",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        620,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {}
+      },
+      "id": "model-ai-manajer",
+      "name": "Model AI (Manajer)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        520,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Baca seluruh daftar produk, bahan valid, harga, dan klaim terlarang dari tab Katalog_Produk_&_Fakta.",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Katalog_Produk_&_Fakta"
+        },
+        "options": {}
+      },
+      "id": "tool-baca-katalog",
+      "name": "Baca Katalog Produk & Fakta",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Baca atau tambah ide riset konten di tab Bank_Riset_Ide.",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Bank_Riset_Ide"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "ID_Riset"
+          ]
+        },
+        "options": {}
+      },
+      "id": "tool-bank-ide",
+      "name": "Kelola Bank Riset Ide",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        880,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Baca, tambah, atau update status/naskah di tab Kalender_Konten.",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Kalender_Konten"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "ID_Konten"
+          ]
+        },
+        "options": {}
+      },
+      "id": "tool-kalender-konten",
+      "name": "Kelola Kalender Konten",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        1060,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fonnte.com/send",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "ISI_TOKEN_FONNTE_ANDA"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "target",
+              "value": "={{ $('Rapikan Perintah Masuk').item.json.sender }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "kirim-teks-fonnte",
+      "name": "Kirim Balasan Teks via Fonnte",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        980,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1-6ra-cPS3nDlSfbxpmO-jjJkBEhcjr6rbI1VCGLInN4"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Kalender_Konten"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ID_Konten",
+              "lookupValue": "={{ $('Rapikan Perintah Masuk').item.json.perintah.replace(/^video\\s+/i, '').trim().toUpperCase() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ambil-baris-konten",
+      "name": "Ambil Data Konten dari Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        620,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Buatkan JSON 5 scene video motion 9:16 untuk konten berikut:\nID_Konten: {{ $json.ID_Konten }}\nPilar: {{ $json.Pilar }}\nTopik: {{ $json.Topik }}\nHook: {{ $json.Hook_3_Detik }}\nNaskah: {{ $json.Naskah_Lengkap }}\nPrompt Visual Dasar: {{ $json.Prompt_Visual }}",
+        "options": {
+          "systemMessage": "Kamu adalah Sutradara Video Motion 9:16 (1080x1920, durasi ~23 detik). Kembalikan HANYA JSON valid tanpa markdown ```json:\n{\n  \"id_konten\": \"...\",\n  \"voiceover_full\": \"Narasi Bahasa Indonesia lengkap ~55 kata, alami dan hangat\",\n  \"scenes\": [\n    {\"scene_no\": 1, \"duration\": 3, \"text\": \"Hook max 7 kata\", \"bg_color\": \"#1F4E5F\", \"text_color\": \"#FFFFFF\"},\n    {\"scene_no\": 2, \"duration\": 5, \"text\": \"Poin 1 max 8 kata\", \"bg_color\": \"#264653\", \"text_color\": \"#FFFFFF\"},\n    {\"scene_no\": 3, \"duration\": 6, \"text\": \"Poin 2 max 8 kata\", \"bg_color\": \"#2A9D8F\", \"text_color\": \"#FFFFFF\"},\n    {\"scene_no\": 4, \"duration\": 5, \"text\": \"Poin 3 max 8 kata\", \"bg_color\": \"#1F4E5F\", \"text_color\": \"#FFFFFF\"},\n    {\"scene_no\": 5, \"duration\": 4, \"text\": \"CTA Chat WA Sekarang\", \"bg_color\": \"#E76F51\", \"text_color\": \"#FFFFFF\"}\n  ]\n}"
+        }
+      },
+      "id": "ai-motion-director",
+      "name": "AI Sutradara Video Motion",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        860,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {}
+      },
+      "id": "model-ai-motion",
+      "name": "Model AI (Motion)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        860,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.text || '{}';\nconst clean = raw.replace(/```json|```/g, '').trim();\nconst parsed = JSON.parse(clean);\n\nconst scenes = (parsed.scenes || []).map((s) => ({\n  comment: `Scene ${s.scene_no}`,\n  duration: s.duration || 4,\n  'background-color': s.bg_color || '#1F4E5F',\n  transition: { style: 'fade', duration: 0.4 },\n  elements: [\n    {\n      type: 'text',\n      text: s.text,\n      style: '003',\n      settings: {\n        'font-family': 'Montserrat',\n        'font-size': '64px',\n        'font-color': s.text_color || '#FFFFFF'\n      },\n      position: 'center-center'\n    }\n  ]\n}));\n\nreturn [{\n  json: {\n    id_konten: parsed.id_konten,\n    payload: {\n      resolution: 'instagram-story',\n      quality: 'high',\n      draft: false,\n      scenes,\n      elements: [\n        {\n          type: 'voice',\n          text: parsed.voiceover_full,\n          model: 'azure'\n        },\n        {\n          type: 'subtitles',\n          settings: {\n            style: 'classic',\n            'font-family': 'Montserrat',\n            'font-size': '44px',\n            position: 'bottom-center'\n          }\n        }\n      ]\n    }\n  }\n}];"
+      },
+      "id": "susun-payload-motion",
+      "name": "Susun Payload JSON2Video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.json2video.com/v2/movies",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "ISI_API_KEY_JSON2VIDEO_ANDA"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {}
+      },
+      "id": "render-json2video",
+      "name": "Render Video Motion (JSON2Video)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1360,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 35,
+        "unit": "seconds"
+      },
+      "id": "tunggu-render",
+      "name": "Tunggu Render Selesai (35s)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1580,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.json2video.com/v2/movies?project={{ $json.project }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "ISI_API_KEY_JSON2VIDEO_ANDA"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ambil-url-video",
+      "name": "Ambil URL Video MP4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1800,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fonnte.com/send",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "ISI_TOKEN_FONNTE_ANDA"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "target",
+              "value": "={{ $('Rapikan Perintah Masuk').item.json.sender }}"
+            },
+            {
+              "name": "message",
+              "value": "=Video motion untuk {{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }} sudah jadi! Link: {{ $json.movie.url }}\n\nBalas 'ACC {{ $('Ambil Data Konten dari Sheets').item.json.ID_Konten }}' jika sudah oke."
+            },
+            {
+              "name": "url",
+              "value": "={{ $json.movie.url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "kirim-video-fonnte",
+      "name": "Kirim Video via Fonnte",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2040,
+        340
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Fonnte Masuk": {
+      "main": [
+        [
+          {
+            "node": "Filter Nomor & Prefix (/ai)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Nomor & Prefix (/ai)": {
+      "main": [
+        [
+          {
+            "node": "Rapikan Perintah Masuk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rapikan Perintah Masuk": {
+      "main": [
+        [
+          {
+            "node": "Apakah Perintah Video Motion?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apakah Perintah Video Motion?": {
+      "main": [
+        [
+          {
+            "node": "Ambil Data Konten dari Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Manajer & Konten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model AI (Manajer)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Manajer & Konten",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baca Katalog Produk & Fakta": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Manajer & Konten",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kelola Bank Riset Ide": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Manajer & Konten",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kelola Kalender Konten": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Manajer & Konten",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Manajer & Konten": {
+      "main": [
+        [
+          {
+            "node": "Kirim Balasan Teks via Fonnte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ambil Data Konten dari Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Sutradara Video Motion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model AI (Motion)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Sutradara Video Motion",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Sutradara Video Motion": {
+      "main": [
+        [
+          {
+            "node": "Susun Payload JSON2Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Susun Payload JSON2Video": {
+      "main": [
+        [
+          {
+            "node": "Render Video Motion (JSON2Video)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Video Motion (JSON2Video)": {
+      "main": [
+        [
+          {
+            "node": "Tunggu Render Selesai (35s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tunggu Render Selesai (35s)": {
+      "main": [
+        [
+          {
+            "node": "Ambil URL Video MP4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ambil URL Video MP4": {
+      "main": [
+        [
+          {
+            "node": "Kirim Video via Fonnte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

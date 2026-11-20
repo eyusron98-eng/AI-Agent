@@ -1,0 +1,39 @@
+[
+  {
+    "op": "write",
+    "range": "'Kalender_Konten'!A1",
+    "data": [
+      ["ID_Konten", "Tanggal_Tayang", "Pilar", "Format", "Topik", "Hook_3_Detik", "Naskah_Lengkap", "Caption_Hashtag", "Prompt_Visual", "Link_File_Media", "Status", "Catatan_Revisi"],
+      ["K-01", "2026-11-23", "Sabun", "Reels", "Proses curing sabun minyak kelapa", "Kenapa sabun alami tidak bisa langsung dipakai hari ini?", "0-3s: Hook + video potong sabun. 3-15s: Penjelasan masa curing 4 minggu agar pH aman & busa lembut. 15-25s: Tunjukkan tekstur sabun matang + CTA cek stok.", "Sabar itu bagian dari kualitas. Sabun batch November lagi masuk tahap curing... #SabunAlami #SabunHandmade", "Close up natural handmade coconut oil soap bars curing on wooden rack, soft morning light, clean rustic aesthetic", "", "Menunggu ACC", "-"],
+      ["K-02", "2026-11-24", "Koperasi", "Carousel", "Cara koperasi menjaga kesegaran bahan dapur", "3 rahasia belanja bahan dapur lebih hemat tanpa turun kualitas", "Slide 1: Judul. Slide 2: Belanja kolektif langsung dari petani/supplier. Slide 3: Sortasi harian. Slide 4: Cara pesan dari dapur Anda.", "Masak enak dimulai dari bahan baku yang jujur. Ini cara koperasi kami jaga pasokan harian... #KoperasiBahanDapur", "Minimalist flatlay fresh kitchen ingredients garlic shallots chili on kraft paper, warm lighting", "", "Draft Naskah", "Ganti contoh harga di slide 3"]
+    ]
+  },
+  {
+    "op": "write",
+    "range": "'Bank_Riset_Ide'!A1",
+    "data": [
+      ["ID_Riset", "Tanggal", "Pilar", "Masalah_Audiens_atau_Tren", "Sudut_Pandang", "Referensi", "Status_Pakai"],
+      ["R-01", "2026-11-19", "Sabun", "Banyak konsumen mengira sabun tanpa busa melimpah berarti tidak bersih", "Edukasi bedanya surfaktan sintetis vs sabun minyak alami", "Catatan formulasi internal & FAQ pembeli", "Belum Dipakai"],
+      ["R-02", "2026-11-19", "Dapur", "Harga cabai/bawang naik turun bikin pusing hitung HPP menu harian", "Tips stok bumbu dasar & manfaat ambil pasokan dari koperasi", "Data harga mingguan koperasi", "Sudah Jadi K-02"],
+      ["R-03", "2026-11-19", "Riset", "Masyarakat penasaran apakah limbah minyak jelantah bisa diolah aman", "Penjelasan sains sederhana proses saponifikasi & batas keamanannya", "Jurnal / catatan riset tim", "Belum Dipakai"]
+    ]
+  },
+  {
+    "op": "write",
+    "range": "'Katalog_Produk_&_Fakta'!A1",
+    "data": [
+      ["Kode", "Pilar", "Nama_Produk_atau_Riset", "Bahan_dan_Fakta_Valid", "Harga", "Klaim_Terlarang"],
+      ["P-01", "Sabun", "Sabun Batang Kelapa Lembut 90g", "Minyak kelapa, minyak zaitun, NaOH (habis bereaksi saat curing 4 minggu), air suling", "Rp25.000", "DILARANG klaim menyembuhkan eksim, jerawat medis, penyakit kulit, atau membunuh 99,9% bakteri"],
+      ["P-02", "Koperasi", "Paket Pasokan Dapur Mingguan", "Beras, minyak goreng, bumbu dasar segar; khusus mitra dapur & anggota koperasi; antar H+1", "Mulai Rp350.000", "DILARANG janji harga tetap selamanya atau stok tak terbatas"],
+      ["P-03", "Dapur", "Lauk Siap Saji Dapur Koperasi", "Dimasak harian tanpa pengawet sintetis, tahan suhu ruang 12 jam / kulkas 3 hari", "Rp18.000/porsi", "DILARANG klaim organik bersertifikat jika bahan belum bersertifikat organik"]
+    ]
+  },
+  {
+    "op": "write",
+    "range": "'Performa_Konten'!A1",
+    "data": [
+      ["Minggu", "ID_Konten", "Platform", "Views", "Likes_Saves", "Chat_WA_Masuk", "Catatan_Evaluasi_AI"],
+      ["2026-W47", "K-01", "Instagram Reels", 3420, 184, 9, "Hook pertanyaan edukasi bekerja baik; ulangi format behind-the-scenes produksi sabun."]
+    ]
+  }
+]
